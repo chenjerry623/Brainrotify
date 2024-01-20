@@ -33,6 +33,21 @@ app.post('/process-video', upload.single('video'), async (req, res) => {
   }
 });
 
+fluentFFmpeg({ source: 'NBA.mp4' })
+  .setStartTime(10)
+  .duration(10)
+  .on('start', function(commandLine) {
+    console.log("Processing Begun");
+  })
+  .on('error', function(err) {
+    console.error("Error occurred:", err);
+  })  
+  .on('end', function() {
+    console.log("Processing Completed");
+  })
+  .saveToFile("newVid.mp4");
+
+
 function processVideo(inputBuffer, additionalVideoPath) {
   return new Promise((resolve, reject) => {
     console.log(inputBuffer);
