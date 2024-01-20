@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 const VideoEditor = () => {
   const [inputVideo, setInputVideo] = useState(null);
   const [videoUrls, setVideoUrls] = useState([]);
+  const [selectedVideo, setSelectedVideo] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -55,6 +56,10 @@ const VideoEditor = () => {
     }
   };
 
+  const handleVideoSelection = (event) => {
+    setSelectedVideo(event.target.value);
+  };
+
   return (
     <div>
       <input type="file" accept="video/*" onChange={handleFileSelect} />
@@ -63,16 +68,27 @@ const VideoEditor = () => {
       {statusMessage && <div>Status: {statusMessage}</div>}
       {errorMessage && <div style={{ color: 'red' }}>Error: {errorMessage}</div>}
 
-      <h2>Available Videos</h2>
-      {videoUrls.map((url, index) => (
-        <div key={index}>
-          <video controls width="500" src={url}>
+      <h2>Select a Video</h2>
+      <select onChange={handleVideoSelection} value={selectedVideo}>
+        <option value="">Select a video</option>
+        {videoUrls.map((url, index) => (
+          <option key={index} value={url}>
+            Video {index + 1}
+          </option>
+        ))}
+      </select>
+
+      {selectedVideo && (
+        <div>
+          <p>Selected Video:</p>
+          <video controls width="500" src={selectedVideo}>
             Your browser does not support the video tag.
           </video>
         </div>
-      ))}
+      )}
     </div>
   );
 };
+
 
 export default VideoEditor;
