@@ -1,10 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const VideoEditor = () => {
   const [inputVideo, setInputVideo] = useState(null);
-  const [videoUrl, setVideoUrl] = useState('');
+  const [videoUrls, setVideoUrls] = useState([]);
   const [statusMessage, setStatusMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+
+  useEffect(() => {
+    fetch('http://localhost:3001/list-videos')
+      .then(response => response.json())
+      .then(data => setVideoUrls(data.videoUrls))
+      .catch(error => console.error('Error fetching video URLs:', error));
+  }, []);
 
   const handleFileSelect = (event) => {
     const file = event.target.files[0];
@@ -37,8 +44,9 @@ const VideoEditor = () => {
         throw new Error(`Server responded with error code: ${response.status}`);
       }
 
+      // Fetch updated list of videos after upload
       const data = await response.json();
-      setVideoUrl(data.videoUrl);
+      setVideoUrls(prev => [...prev, data.videoUrl]);
       setStatusMessage('Video uploaded successfully.');
     } catch (error) {
       console.error('Error uploading video:', error);
@@ -55,14 +63,14 @@ const VideoEditor = () => {
       {statusMessage && <div>Status: {statusMessage}</div>}
       {errorMessage && <div style={{ color: 'red' }}>Error: {errorMessage}</div>}
 
-      {videoUrl && (
-        <div>
-          <p>Uploaded Video:</p>
-          <video controls width="500" src={videoUrl}>
+      <h2>Available Videos</h2>
+      {videoUrls.map((url, index) => (
+        <div key={index}>
+          <video controls width="500" src={url}>
             Your browser does not support the video tag.
           </video>
         </div>
-      )}
+      ))}
     </div>
   );
 };
