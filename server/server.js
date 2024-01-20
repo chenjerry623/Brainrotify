@@ -14,40 +14,50 @@ const upload = multer({ storage: storage });
 
 app.post('/process-video', upload.single('video'), async (req, res) => {
   try {
-    // Access the uploaded video in req.file.buffer
-    const inputVideoBuffer = req.file.buffer;
+    if (!req.file) {
+      return res.status(400).send('No file uploaded');
+    }
 
-    // Additional video path
+    console.log(req.file);
+
+    const inputVideoBuffer = req.file.buffer;
     const additionalVideoPath = './testingVideo.mp4';
 
-    // Process the video using fluent-ffmpeg
     const outputVideoBuffer = await processVideo(inputVideoBuffer, additionalVideoPath);
 
-    // Send the processed video back to the client
     res.send(outputVideoBuffer);
+    //res.send("Hello");
   } catch (error) {
     console.error('Error processing video:', error);
-    res.status(500).send('Internal Server Error');
+    res.status(500).send(error.message);
   }
 });
 
 function processVideo(inputBuffer, additionalVideoPath) {
   return new Promise((resolve, reject) => {
+    console.log(inputBuffer);
     fluentFFmpeg()
       .input(inputBuffer)
       .inputFormat('mp4')
       .input(additionalVideoPath)
       .inputFormat('mp4')
       .complexFilter('[0:v][1:v]vstack=inputs=2[v]')
-      .on('end', () => resolve())
-      .on('error', (err) => reject(err))
+      .on('end', () => {
+        console.log('Processing ended');
+        resolve();
+      })
+      .on('error', (err) => {
+        console.log('Error occurred:', err);
+        reject(err);
+      })
       .toFormat('mp4')
-      .outputOptions('-c:v libx264')  // Optional: Specify video codec
       .on('data', (chunk) => {
+        console.log('Data chunk received');
         // Save the output buffer chunks
         resolve(chunk);
       })
       .on('end', () => {
+        console.log('End of data');
         // Signal the end of the buffer
         resolve(null);
       })

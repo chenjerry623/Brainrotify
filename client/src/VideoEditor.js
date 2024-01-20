@@ -5,6 +5,8 @@ const VideoEditor = () => {
   const [inputVideo, setInputVideo] = useState(null);
   const [outputVideo, setOutputVideo] = useState(null);
 
+  
+
   const handleDrop = (acceptedFiles) => {
     const file = acceptedFiles[0];
   
@@ -25,26 +27,24 @@ const VideoEditor = () => {
     setInputVideo(file);
   };
 
-  const processVideo = async () => {
-    try {
+  function processVideo(inputFile, additionalVideoPath) {
+    return new Promise((resolve, reject) => {
       const formData = new FormData();
-      formData.append('video', inputVideo);
-
-      const response = await fetch('http://localhost:3001/process-video', {
+      formData.append('video', inputFile);
+      formData.append('additionalVideoPath', additionalVideoPath);
+  
+      fetch('/process-video', {
         method: 'POST',
         body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Video processing failed');
-      }
-
-      const processedVideoBlob = await response.blob();
-      setOutputVideo(URL.createObjectURL(processedVideoBlob));
-    } catch (error) {
-      console.error('Error processing video:', error);
-    }
-  };
+      })
+      .then(response => response.blob())
+      .then(blob => {
+        const url = URL.createObjectURL(blob);
+        resolve(url);
+      })
+      .catch(error => reject(error));
+    });
+  }
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop: handleDrop });
 
