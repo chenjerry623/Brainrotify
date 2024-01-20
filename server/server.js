@@ -1,60 +1,47 @@
 const express = require('express');
 const multer = require('multer');
-const fluentFFmpeg = require('fluent-ffmpeg');
 const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
+app.use('/videos', express.static('videos')); // Serve static files from 'videos' directory
 
-const storage = multer.memoryStorage();
+// Configure storage for multer to save files on disk
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'videos/'); // Save files in 'videos' directory
+  },
+  filename: (req, file, cb) => {
+    // Create a unique filename
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
+
 const upload = multer({ storage: storage });
 
 app.post('/process-video', upload.single('video'), async (req, res) => {
   try {
-    // Access the uploaded video in req.file.buffer
-    const inputVideoBuffer = req.file.buffer;
+    if (!req.file) {
+      return res.status(400).send('No file uploaded.');
+    }
 
-    // Additional video path
-    const additionalVideoPath = './testingVideo.mp4';
+    // File is saved in 'videos' directory, create a URL to access it
+    const videoUrl = `${req.protocol}://${req.get('host')}/videos/${req.file.filename}`;
 
-    // Process the video using fluent-ffmpeg
-    const outputVideoBuffer = await processVideo(inputVideoBuffer, additionalVideoPath);
-
-    // Send the processed video back to the client
-    res.send(outputVideoBuffer);
+    // Send the URL back to the client
+    res.json({ videoUrl: videoUrl });
   } catch (error) {
-    console.error('Error processing video:', error);
+    console.error('Error uploading video:', error);
     res.status(500).send('Internal Server Error');
   }
 });
 
-function processVideo(inputBuffer, additionalVideoPath) {
-  return new Promise((resolve, reject) => {
-    fluentFFmpeg()
-      .input(inputBuffer)
-      .inputFormat('mp4')
-      .input(additionalVideoPath)
-      .inputFormat('mp4')
-      .complexFilter('[0:v][1:v]vstack=inputs=2[v]')
-      .on('end', () => resolve())
-      .on('error', (err) => reject(err))
-      .toFormat('mp4')
-      .outputOptions('-c:v libx264')  // Optional: Specify video codec
-      .on('data', (chunk) => {
-        // Save the output buffer chunks
-        resolve(chunk);
-      })
-      .on('end', () => {
-        // Signal the end of the buffer
-        resolve(null);
-      })
-      .run();
-  });
-}
-
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+

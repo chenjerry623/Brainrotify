@@ -1,99 +1,68 @@
 import React, { useState } from 'react';
-import { useDropzone } from 'react-dropzone';
-import './VideoEditor.css';
 
 const VideoEditor = () => {
   const [inputVideo, setInputVideo] = useState(null);
-  const [outputVideo, setOutputVideo] = useState(null);
+  const [videoUrl, setVideoUrl] = useState('');
+  const [statusMessage, setStatusMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleDrop = (acceptedFiles) => {
-    const file = acceptedFiles[0];
-  
-    // Check file type
-    const acceptedFileTypes = ['video/mp4', 'video/avi']; // Add more types as needed
-    if (!acceptedFileTypes.includes(file.type)) {
-      console.error('Unsupported file type:', file.type);
-      window.alert("Please select file of type mp4 or avi");
-      return;
+  const handleFileSelect = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setInputVideo(file);
+      setStatusMessage(`File selected: ${file.name}`);
+      setErrorMessage('');
+    } else {
+      setErrorMessage('No file selected.');
     }
-  
-    // Check file size (limit to 100MB for example)
-    const fileSizeLimit = 10000 * 1024 * 1024; // 100MB
-    if (file.size > fileSizeLimit) {
-      console.error('File size exceeds limit:', file.size);
-      return;
-    }
-  
-    setInputVideo(file);
   };
 
-  const processVideo = async () => {
+  const handleUpload = async () => {
+    if (!inputVideo) {
+      setErrorMessage('No file selected for upload.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('video', inputVideo);
+    setStatusMessage('Uploading video...');
+
     try {
-      const formData = new FormData();
-      formData.append('video', inputVideo);
-
-      // const response = await fetch('http://localhost:3001/process-video', {
-      //   method: 'POST',
-      //   body: formData,
-      // });
-
-      const response = await fetch('/process-video', {
+      const response = await fetch('http://localhost:3001/process-video', {
         method: 'POST',
         body: formData,
       });
 
       if (!response.ok) {
-        throw new Error('Video processing failed');
+        throw new Error(`Server responded with error code: ${response.status}`);
       }
 
-      const processedVideoBlob = await response.blob();
-      setOutputVideo(URL.createObjectURL(processedVideoBlob));
+      const data = await response.json();
+      setVideoUrl(data.videoUrl);
+      setStatusMessage('Video uploaded successfully.');
     } catch (error) {
-      console.error('Error processing video:', error);
-      window.alert(error);
+      console.error('Error uploading video:', error);
+      setErrorMessage(`Upload failed: ${error.message}`);
+      setStatusMessage('');
     }
   };
 
-  const { getRootProps, getInputProps } = useDropzone({ onDrop: handleDrop });
-
   return (
-    <div className='HandleVideoInput'>
+    <div>
+      <input type="file" accept="video/*" onChange={handleFileSelect} />
+      <button onClick={handleUpload}>Upload Video</button>
 
-      <div className='welcomeMsg'>
-        <h1>Welcome to Brainrotify!</h1>
-      </div>
+      {statusMessage && <div>Status: {statusMessage}</div>}
+      {errorMessage && <div style={{ color: 'red' }}>Error: {errorMessage}</div>}
 
-      <div className='description'>
-        <p>
-          Please select a video that you would like to convert
-        </p>
-      </div>
-
-      <div {...getRootProps()} className='selectFile'>
-        <input {...getInputProps()} />
-        {/* <p>Drag and drop a video file here, or click to select one</p> */}
-        <button>Click to select a video file</button>
-      </div>
-
-
-      {inputVideo && (
+      {videoUrl && (
         <div>
-          <p>
-            Input Video: {inputVideo.name}
-          </p>
-          <button onClick={processVideo}>Process Video</button>
+          <p>Uploaded Video:</p>
+          <video controls width="500" src={videoUrl}>
+            Your browser does not support the video tag.
+          </video>
         </div>
       )}
-
-
-      {outputVideo && (
-        <div>
-          <p>Output Video:</p>
-          <video controls width="1000" src={outputVideo} />
-        </div>
-      )}
-
-
     </div>
   );
 };
