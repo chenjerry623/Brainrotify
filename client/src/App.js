@@ -1,10 +1,18 @@
-import logo from './logo.svg';
+//import logo from './logo.svg';
 import './App.css';
 import VideoEditor from './VideoEditor';
 
 function App() {
   return (
-    <VideoEditor/>
+    
+    <section id='mainPage'>
+      <VideoEditor/>
+      {/* <div className='dragDrop'>
+        <p className='description'>
+          Please select a file you would like to upload:
+        </p>
+      </div> */}
+    </section>
   );
 }
 

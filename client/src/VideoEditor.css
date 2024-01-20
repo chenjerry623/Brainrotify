@@ -1,0 +1,24 @@
+.HandleVideoInput {
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+    padding-left: 7rem;
+    padding-right: 7rem;
+}
+
+.welcomeMsg {
+    font-size: 1.5rem;
+    padding-top: 2rem;
+}
+
+.description {
+    padding-top: 1rem;
+}
+
+.selectFile {
+    padding-top: 1rem;
+}
