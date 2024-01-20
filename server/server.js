@@ -34,9 +34,9 @@ app.post('/process-video', upload.single('video'), async (req, res) => {
 });
 
 // splice
-fluentFFmpeg()
+/*fluentFFmpeg()
   .input("NBA.mp4")
-  .setStartTime(20)
+  .setStartTime(10)
   .duration(10)
   .complexFilter('scale=640:480')
   .on('start', function (commandLine) {
@@ -49,13 +49,13 @@ fluentFFmpeg()
     console.log("Processing Completed " + "nba");
   })
   .saveToFile("newVid2.mp4");
-
+*/
 
 
 // splice 2
-fluentFFmpeg()
+/*fluentFFmpeg()
   .input("testingVideo.mp4")
-  .setStartTime(20)
+  .setStartTime(10)
   .duration(10)
   .complexFilter('scale=640:480')
   .on('start', function (commandLine) {
@@ -68,7 +68,7 @@ fluentFFmpeg()
     console.log("Processing Completed " + "surf");
   })
   .saveToFile("shortSubway.mp4");
-
+*/
 fluentFFmpeg()
   .input("newVid2.mp4")
   .input("shortSubway.mp4")
