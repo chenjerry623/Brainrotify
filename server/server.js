@@ -33,29 +33,101 @@ app.post('/process-video', upload.single('video'), async (req, res) => {
   }
 });
 
-fluentFFmpeg({ source: 'NBA.mp4' })
-  .setStartTime(10)
+// splice
+fluentFFmpeg()
+  .input("NBA.mp4")
+  .setStartTime(20)
   .duration(10)
-  .on('start', function(commandLine) {
-    console.log("Processing Begun");
+  .complexFilter('scale=640:480')
+  .on('start', function (commandLine) {
+    console.log("Processing Begun " + "nba");
   })
-  .on('error', function(err) {
+  .on('error', function (err) {
     console.error("Error occurred:", err);
-  })  
-  .on('end', function() {
-    console.log("Processing Completed");
   })
-  .saveToFile("newVid.mp4");
+  .on('end', function () {
+    console.log("Processing Completed " + "nba");
+  })
+  .saveToFile("newVid2.mp4");
 
+
+
+// splice 2
+fluentFFmpeg()
+  .input("testingVideo.mp4")
+  .setStartTime(20)
+  .duration(10)
+  .complexFilter('scale=640:480')
+  .on('start', function (commandLine) {
+    console.log("Processing Begun " + "surf");
+  })
+  .on('error', function (err) {
+    console.error("Error occurred:", err);
+  })
+  .on('end', function () {
+    console.log("Processing Completed " + "surf");
+  })
+  .saveToFile("shortSubway.mp4");
+
+fluentFFmpeg()
+  .input("newVid2.mp4")
+  .input("shortSubway.mp4")
+  .complexFilter('vstack=inputs=2')
+  .on('start', function (commandLine) {
+    console.log("Processing Begun " + "combine");
+  })
+  .on('error', function (err) {
+    console.error("Error occurred:", err);
+  })
+  .on('end', function () {
+    console.log("Processing Completed " + "combine");
+  })
+  .saveToFile("combined.mp4");
+
+
+// combine
+/*console.log("STARTING COMBINE");
+fluentFFmpeg()
+  .input("newVid.mp4")
+  .input("shortSubway.mp4")
+  .complexFilter([
+    {
+      filter: 'scale',
+      options: { w: '640', h: '480' },
+      inputs: '0:v',
+      outputs: 'scaled0'
+    },
+    {
+      filter: 'scale',
+      options: { w: '640', h: '480' },
+      inputs: '1:v',
+      outputs: 'scaled1'
+    },
+    {
+      filter: 'vstack',
+      options: { inputs: 2 },
+      inputs: ['scaled0', 'scaled1'],
+      outputs: 'v'
+    }
+  ])
+  .on('start', function (commandLine) {
+    console.log("Processing Begun " + "combine");
+  })
+  .on('error', function (err) {
+    console.error("Error occurred:", err);
+  })
+  .on('end', function () {
+    console.log("Processing Completed " + "combine");
+  })
+  .saveToFile("combinedVid.mp4");
+*/
 
 function processVideo(inputBuffer, additionalVideoPath) {
   return new Promise((resolve, reject) => {
     console.log(inputBuffer);
     fluentFFmpeg()
       .input(inputBuffer)
-      .inputFormat('mp4')
       .input(additionalVideoPath)
-      .inputFormat('mp4')
       .complexFilter('[0:v][1:v]vstack=inputs=2[v]')
       .on('end', () => {
         console.log('Processing ended');
