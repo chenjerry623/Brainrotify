@@ -12,19 +12,35 @@ app.use(express.json());
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-app.post('/process-video', upload.single('video'), async (req, res) => {
+app.post('/process-video', upload.single('video'), (req, res) => {
   try {
     // Access the uploaded video in req.file.buffer
     const inputVideoBuffer = req.file.buffer;
 
     // Additional video path
-    const additionalVideoPath = './testingVideo.mp4';
+    //const additionalVideoPath = './testingVideo.mp4';
 
     // Process the video using fluent-ffmpeg
-    const outputVideoBuffer = await processVideo(inputVideoBuffer, additionalVideoPath);
+    //const outputVideoBuffer = await processVideo(inputVideoBuffer, additionalVideoPath);
 
     // Send the processed video back to the client
-    res.send(outputVideoBuffer);
+    //res.send(outputVideoBuffer);
+    res.send(inputVideoBuffer);
+  } catch (error) {
+    console.error('Error processing video:', error);
+    res.status(500).send('Internal Server Error');
+  }
+
+  try {
+    // Access the uploaded video in req.file.buffer
+    const inputVideoBuffer = req.file.buffer;
+
+    // Assume that you've processed the video here (replace this with your logic)
+    const processedVideoBuffer = inputVideoBuffer;
+
+    // Send the processed video back to the client
+    res.set('Content-Type', 'video/mp4'); // Set the appropriate content type
+    res.send(processedVideoBuffer);
   } catch (error) {
     console.error('Error processing video:', error);
     res.status(500).send('Internal Server Error');

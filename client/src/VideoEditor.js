@@ -29,6 +29,7 @@ const VideoEditor = () => {
 
   const processVideo = async () => {
     try {
+      window.alert(inputVideo);
       const formData = new FormData();
       formData.append('video', inputVideo);
 
@@ -37,13 +38,22 @@ const VideoEditor = () => {
       //   body: formData,
       // });
 
+      console.log("before fetch");
       const response = await fetch('/process-video', {
         method: 'POST',
         body: formData,
       });
+      console.log("after fetch");
 
-      if (!response.ok) {
-        throw new Error('Video processing failed');
+      // if (!response.ok) {
+      //   throw new Error('Video processing failed');
+      // }
+
+      if (response.ok) {
+        await response.arrayBuffer();
+        // Handle the processed video buffer as needed
+      } else {
+        console.error('Video processing failed:', response.statusText);
       }
 
       const processedVideoBlob = await response.blob();
