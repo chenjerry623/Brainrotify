@@ -7,6 +7,21 @@ const VideoEditor = () => {
 
   const handleDrop = (acceptedFiles) => {
     const file = acceptedFiles[0];
+  
+    // Check file type
+    const acceptedFileTypes = ['video/mp4', 'video/avi']; // Add more types as needed
+    if (!acceptedFileTypes.includes(file.type)) {
+      console.error('Unsupported file type:', file.type);
+      return;
+    }
+  
+    // Check file size (limit to 100MB for example)
+    const fileSizeLimit = 100 * 1024 * 1024; // 100MB
+    if (file.size > fileSizeLimit) {
+      console.error('File size exceeds limit:', file.size);
+      return;
+    }
+  
     setInputVideo(file);
   };
 
