@@ -1,5 +1,6 @@
-.App {
+/* .App {
   text-align: center;
+  background-color: black;
 }
 
 .App-logo {
@@ -35,4 +36,22 @@
   to {
     transform: rotate(360deg);
   }
+} */
+
+.dragDrop {
+  background-color: yellow;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+  padding-left: 7rem;
+  padding-right: 7rem;
+  
 }
+.description { 
+  
+}
+
