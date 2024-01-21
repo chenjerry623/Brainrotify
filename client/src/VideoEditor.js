@@ -13,6 +13,8 @@ const VideoEditor = () => {
   const [statusMessage, setStatusMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
+  const [currIndex, setCurrIndex] = useState(0);
+
   const [stateChange, setStateChange] = useState(false);
 
   const [uploading, setUploading] = useState(false);
@@ -95,6 +97,7 @@ const VideoEditor = () => {
 
       // Use updatedVideoUrls directly and add cache-busting query parameter
       const newVideoUrl = STORAGE_URL + updatedVideoUrls[0] + `?timestamp=${Date.now()}`;
+      setCurrIndex(0);
       setSelectedVideo(newVideoUrl);
 
 
@@ -120,12 +123,19 @@ const VideoEditor = () => {
 
 
   function handleNextVideo() {
-    const index = videoUrls.indexOf(selectedVideo.replace(STORAGE_URL, ''));
-    if (index < videoUrls.length - 1) {
-      const newVideoUrl = STORAGE_URL + videoUrls[index + 1];
+    if (currIndex == 0) {
+      const newVideoUrl = STORAGE_URL + videoUrls[1];
       setSelectedVideo(newVideoUrl);
-      
+      setCurrIndex(1);
+    }  else {
+      const index = videoUrls.indexOf(selectedVideo.replace(STORAGE_URL, ''));
+      if (index < videoUrls.length - 1) {
+        const newVideoUrl = STORAGE_URL + videoUrls[index + 1];
+        setSelectedVideo(newVideoUrl);
+        
+      }
     }
+    
   }
 
   return (

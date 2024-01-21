@@ -16,6 +16,8 @@ const upload = multer({ storage: storage });
 
 const DURATION = 10;
 
+
+
 app.use('/videos', express.static(path.join(__dirname, 'uploads', 'combined')));
 
 
@@ -30,7 +32,10 @@ app.post('/process-video', upload.single('video'), async (req, res) => {
     fs.writeFileSync(filePath, req.file.buffer);
 
     // TODO: generate one randomly
-    const additionalVideoPath = './shortSubway.mp4';
+
+    //const subwayIndex = Math.floor(Math.random() * 10 + 1);
+    //const additionalVideoPath = './shortSubway' + subwayIndex + '.mp4';
+    const additionalVideoPath = './shortSubway';
 
     console.log("starting splice")
 
@@ -102,9 +107,10 @@ console.log("1")
 // returns array of combined video paths
 function processVideo(video, additionalVideoPath, index) {
   return new Promise((resolve, reject) => {
+    const subwayIndex = Math.floor(Math.random() * 10 + 1);
     fluentFFmpeg()
       .input(video)
-      .input(additionalVideoPath)
+      .input(additionalVideoPath + subwayIndex + '.mp4')
       .complexFilter('vstack=inputs=2')
       .on('start', function (commandLine) {
         console.log("Processing Begun " + "combine");
