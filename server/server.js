@@ -16,6 +16,8 @@ const upload = multer({ storage: storage });
 
 const DURATION = 10;
 
+app.use('/videos', express.static(path.join(__dirname, 'uploads', 'combined')));
+
 
 app.post('/process-video', upload.single('video'), async (req, res) => {
   try {
@@ -45,6 +47,22 @@ app.post('/process-video', upload.single('video'), async (req, res) => {
     res.status(500).send(error.message);
   }
 });
+
+app.get('/list-videos', (req, res) => {
+  const directoryPath = path.join(__dirname, 'uploads', 'combined');
+  fs.readdir(directoryPath, (err, files) => {
+    if (err) {
+      return res.status(500).send('Unable to scan directory: ' + err);
+    }
+
+    // Filter out non-MP4 files
+    const videoFiles = files.filter(file => path.extname(file) === '.mp4');
+
+    // Send the list of video file names
+    res.send(videoFiles);
+  });
+});
+
 
 async function spliceVideo(inputBuffer, additionalVideoPath) {
   // TODO: base it off of the length of the video instead of just 5
