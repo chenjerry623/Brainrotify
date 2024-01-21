@@ -45,34 +45,88 @@ function processVideo(inputPath, outputPath) {
   });
 }
 
+const DURATION = 10;
+
+
 
 app.post('/process-video', upload.single('video'), async (req, res) => {
   try {
     if (!req.file) {
-      console.error('No file uploaded');
-      return res.status(400).send({ code: 1000, message: 'No file uploaded' });
+      return res.status(400).send('No file uploaded');
     }
+    const filePath = path.join(__dirname, 'uploads', 'uploadedVideo.mp4');
+    console.log(filePath);
+    // Write the buffer to a file
+    fs.writeFileSync(filePath, req.file.buffer);
 
-    const inputFile = path.join(__dirname, 'uploads', req.file.filename);
-    const outputFile = path.join(__dirname, 'videos', `processed-${req.file.filename}`);
-    console.log("Starting video processing for:", inputFile);
+    // TODO: generate one randomly
+    const additionalVideoPath = './shortSubway.mp4';
 
-    processVideo(inputFile, outputFile)
-      .then((processedFilePath) => {
-        console.log("Video processing successful for:", processedFilePath);
-        const videoUrl = `${req.protocol}://${req.get('host')}/videos/${path.basename(processedFilePath)}`;
-        res.json({ videoUrl: videoUrl });
-      })
-      .catch(error => {
-        console.error("Video processing failed:", error);
-        res.status(500).send({ code: error.code, message: 'Error processing video', error: error.error });
-      });
+    console.log("starting splice")
+
+    // array of clipped videos
+    const shortenedVideoArray = await spliceVideo(filePath, additionalVideoPath);
+    console.log("spliced");
+
+    //const outputVideoArray = await processVideo(shortenedVideoBuffer, additionalVideoPath);
+
+    res.send(shortenedVideoArray);
+    //res.send("Hello");
   } catch (error) {
-    console.error('Unexpected error during video processing:', error);
-    res.status(500).send({ code: 1002, message: 'Internal Server Error', error: error });
+    console.error('Error processing video:', error);
+    res.status(500).send(error.message);
   }
 });
 
+async function spliceVideo(inputBuffer, additionalVideoPath) {
+  // TODO: base it off of the length of the video instead of just 5
+  let combinedVideos = [];
+
+  // splice into 5 sections of length DURATION
+  for (let i = 0; i < 5; i++) {
+    fluentFFmpeg()
+      .input(inputBuffer)
+      .setStartTime(i * DURATION)
+      .duration(DURATION)
+      .complexFilter('scale=640:480')
+      .on('start', function (commandLine) {
+        console.log("Processing Begun ");
+      })
+      .on('error', function (err) {
+        console.error("Error occurred:", err);
+      })
+      .on('end', function () {
+        console.log("Processing Completed ");
+        combinedVideos[i] = processVideo("./uploads/shortened/newVid" + i + ".mp4", additionalVideoPath, i);
+      })
+      .saveToFile("./uploads/shortened/newVid" + i + ".mp4");
+  }
+  return combinedVideos;
+
+}
+
+// videoArray: [], array of video paths
+// additionalVideoPath: string, path of subway surf video to add
+//                      change to array later
+// returns array of combined video paths
+function processVideo(video, additionalVideoPath, index) {
+  fluentFFmpeg()
+    .input(video)
+    .input(additionalVideoPath)
+    .complexFilter('vstack=inputs=2')
+    .on('start', function (commandLine) {
+      console.log("Processing Begun " + "combine");
+    })
+    .on('error', function (err) {
+      console.error("Error occurred:", err);
+    })
+    .on('end', function () {
+      console.log("Processing Completed " + "combine");
+      combinedPath = "./uploads/combined/combined" + index + ".mp4";
+      return combinedPath;
+    })
+    .saveToFile("./uploads/combined/combined" + index + ".mp4");
+}
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

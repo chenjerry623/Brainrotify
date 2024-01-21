@@ -6,7 +6,6 @@ const VideoEditor = () => {
   const [selectedVideo, setSelectedVideo] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-
   useEffect(() => {
     fetch('http://localhost:3001/list-videos')
       .then(response => response.json())
