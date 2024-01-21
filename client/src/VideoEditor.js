@@ -3,6 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import left from './images/left.png';
 import right from './images/right.png';
 import upload from './images/upload.png';
+import { Helmet } from 'react-helmet';
 
 const VideoEditor = () => {
   const [inputVideo, setInputVideo] = useState(null);
@@ -130,10 +131,15 @@ const VideoEditor = () => {
 
   return (
     <div className='application'>
+      <Helmet>
+        <title>Brainrotify</title>
+        <link rel="icon" href="images/favicon.ico"/>
+      </Helmet>
+
       <head>
         <title>My first website</title>
       </head>
-      
+
       <h1 className='title'>Brainrotify</h1>
 
       <div className='fileStuff'>
