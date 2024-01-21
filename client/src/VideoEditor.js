@@ -1,11 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 
 const VideoEditor = () => {
   const [inputVideo, setInputVideo] = useState(null);
   const [outputVideo, setOutputVideo] = useState(null);
-
+  const [videoUrls, setVideoUrls] = useState([])
   
+  const [selectedVideo, setSelectedVideo] = useState('');
+  const [statusMessage, setStatusMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const STORAGE_URL = 'http://localhost:3001/videos/';
+  
+  useEffect(() => {
+    fetch('http://localhost:3001/list-videos')
+      .then(response => response.json()) // return the promise from response.json()
+      .then(data => {
+        console.log(data);
+        setVideoUrls(data);
+      })
+      .catch(error => console.error('Error fetching video URLs:', error));
+  }, []);
 
   const handleDrop = (acceptedFiles) => {
     const file = acceptedFiles[0];
@@ -27,21 +42,52 @@ const VideoEditor = () => {
     setInputVideo(file);
   };
 
-  function processVideo(inputFile, additionalVideoPath) {
-    return new Promise((resolve, reject) => {
-      const formData = new FormData();
-      formData.append('video', inputFile);
+  const handleFileSelect = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setInputVideo(file);
+      setStatusMessage(`File selected: ${file.name}`);
+      setErrorMessage('');
+    } else {
+      setErrorMessage('No file selected.');
+    }
+  };
+
+  const handleVideoSelection = (event) => {
+    setSelectedVideo(STORAGE_URL + event.target.value);
+    console.log(STORAGE_URL + event.target.value);
+  };
+
+  async function processVideo(inputFile, additionalVideoPath) {
+    return new Promise(async (resolve, reject) => {
+      if (!inputVideo) {
+        setErrorMessage('No file selected for upload.');
+        return;
+      }
   
-      fetch('/process-video', {
-        method: 'POST',
-        body: formData,
-      })
-      .then(response => response.blob())
-      .then(blob => {
-        const url = URL.createObjectURL(blob);
-        resolve(url);
-      })
-      .catch(error => reject(error));
+      const formData = new FormData();
+      formData.append('video', inputVideo);
+      setStatusMessage('Uploading video...');
+  
+      try {
+        const response = await fetch('http://localhost:3001/process-video', {
+          method: 'POST',
+          body: formData,
+        });
+  
+        if (!response.ok) {
+          throw new Error(`Server responded with error code: ${response.status}`);
+        }
+  
+        // Fetch updated list of videos after upload
+        setStatusMessage('Video uploaded successfully.');
+        resolve(); // Resolve the promise
+      } catch (error) {
+        console.error('Error uploading video:', error);
+        setErrorMessage(`Upload failed: ${error.message}`);
+        setStatusMessage('');
+        reject(error); // Reject the promise
+      }
     });
   }
 
@@ -49,20 +95,28 @@ const VideoEditor = () => {
 
   return (
     <div>
-      <div {...getRootProps()}>
-        <input {...getInputProps()} />
-        <p>Drag and drop a video file here, or click to select one</p>
-      </div>
-      {inputVideo && (
+      <input type="file" accept="video/*" onChange={handleFileSelect} />
+      <button onClick={processVideo}>Upload Video</button>
+
+      {statusMessage && <div>Status: {statusMessage}</div>}
+      {errorMessage && <div style={{ color: 'red' }}>Error: {errorMessage}</div>}
+
+      <h2>Select a Video</h2>
+      <select onChange={handleVideoSelection} value={selectedVideo}>
+        <option value="">Select a video</option>
+        {videoUrls.map((url, index) => (
+          <option key={index} value={url}>
+            Video {index + 1}
+          </option>
+        ))}
+      </select>
+
+      {selectedVideo && (
         <div>
-          <p>Input Video: {inputVideo.name}</p>
-          <button onClick={processVideo}>Process Video</button>
-        </div>
-      )}
-      {outputVideo && (
-        <div>
-          <p>Output Video:</p>
-          <video controls width="400" src={outputVideo} />
+          <p>Selected Video:</p>
+          <video controls width="500" src={selectedVideo}>
+            Your browser does not support the video tag.
+          </video>
         </div>
       )}
     </div>
