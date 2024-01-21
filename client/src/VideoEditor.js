@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
+import uploadIcon from './images/upload.png'
 
 const VideoEditor = () => {
   const [inputVideo, setInputVideo] = useState(null);
@@ -113,9 +114,12 @@ const VideoEditor = () => {
   }
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-      <input type="file" accept="video/*" onChange={handleFileSelect}/>
-      <button onClick={processVideo}>Upload Video</button>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }} className='app'>
+      <input type="file" accept="video/*" onChange={handleFileSelect} class='custom-file-upload'/>
+      
+      <button onClick={processVideo} className='uploadButton'>
+        <img className='uploadImage' src={uploadIcon}/>
+      </button>
 
       {statusMessage && <div>Status: {statusMessage}</div>}
       {errorMessage && <div style={{ color: 'red' }}>Error: {errorMessage}</div>}
