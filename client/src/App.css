@@ -51,7 +51,16 @@
   color: white;
   font-weight: 500;
   font-size: 3rem;
-  
+}
+.head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+.headerIcon {
+  width: 4rem;
+  height: 4rem;
 }
 .empty {
   background-color: #28282B;
