@@ -142,11 +142,6 @@ const VideoEditor = () => {
 
   return (
     <div className='application'>
-      <Helmet>
-        <title>Brainrotify</title>
-        <link rel="icon" href="images/favicon.ico"/>
-      </Helmet>
-
       <div className='head'>
         <img className='headerIcon' src={brain}/>
         <h1 className='title'>Brainrotify</h1>
