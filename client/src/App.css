@@ -36,3 +36,136 @@
     transform: rotate(360deg);
   }
 }
+
+.App {
+  background-color: #28282B;
+}
+.application {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: '100vh';
+}
+.title {
+  color: white;
+  font-weight: 500;
+  font-size: 3rem;
+  
+}
+.empty {
+  background-color: #28282B;
+  height: 30rem;
+}
+
+.fileStuff {
+  padding-top: 0rem;
+}
+.status {
+  color: white;
+  padding-top: 1rem;
+  padding-bottom: 1.5rem;
+}
+
+.uploadButton {
+  margin-top: 2rem;
+  width: 10rem;
+  height: 10rem;
+  border-radius: 50%;
+  /* border: none; */
+
+  color: black;
+  /* background-color: #1F4959; */
+
+  border: 2px solid #6c5ce7;
+  background-color: #a29bfe;
+
+  padding-right: 10rem;
+
+  transition: .5s;
+}
+.upload {
+  width: 10rem;
+  height: 10rem;
+}
+.uploadButton:hover, .rightButton:hover, .leftButton:hover {
+  /* background-color: #3E7A6D; */
+  background-color: #81ecec;
+  border: 2px solid #00cec9;
+}
+
+.rightButton, .leftButton {
+  width: 3rem;
+  height: 3rem;
+
+  border-radius: 50%;
+  /* border: none; */
+
+  color: black;
+  /* background-color: #1F4959; */
+  border: 2px solid #6c5ce7;
+  background-color: #a29bfe;
+
+  margin: 1rem;
+
+  transition: .5s;
+}
+.right, .left {
+  width: 2rem;
+  height: 2rem;
+
+  margin-top: .25rem;
+}
+.right {
+  margin-left: .15rem;
+}
+.left {
+  margin-right: .25rem;
+}
+
+.display {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+input[type=file]::file-selector-button {
+  border: 2px solid #6c5ce7;
+  background-color: #a29bfe;
+  padding: .2em .5em;
+  border-radius: 0.5rem;
+  margin-right: 1.5rem;
+  margin-left: -1.5rem;
+  transition: .5s;
+}
+
+input[type=file]::file-selector-button:hover {
+  background-color: #81ecec;
+  border: 2px solid #00cec9;
+}
+
+input[type=file]::file-selector {
+  color: white;
+}
+
+.custom-file-upload {
+  display: inline-block;
+  padding: 1.5rem 4rem;
+  cursor: pointer;
+  /* border: 1px solid #1F4959;
+  background-color: #377791; */
+  border: 1px solid grey;
+  background-color: rgb(47, 43, 54);
+  color: white;
+  border-radius: 1.5rem;
+  transition: .5s;
+  
+}
+
+/* Style for the file input itself (visually hidden) */
+.custom-file-upload input {
+  display: none;
+}

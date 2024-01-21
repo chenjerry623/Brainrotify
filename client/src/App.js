@@ -4,7 +4,11 @@ import VideoEditor from './VideoEditor';
 
 function App() {
   return (
-    <VideoEditor/>
+    <div className='App'>
+      <VideoEditor/>
+      <div className='empty'></div>
+    </div>
+    
   );
 }
 
