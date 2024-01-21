@@ -31,7 +31,6 @@ const VideoEditor = () => {
     return new Promise((resolve, reject) => {
       const formData = new FormData();
       formData.append('video', inputFile);
-      formData.append('additionalVideoPath', additionalVideoPath);
   
       fetch('/process-video', {
         method: 'POST',
