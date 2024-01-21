@@ -2,6 +2,8 @@ const express = require('express');
 const multer = require('multer');
 const fluentFFmpeg = require('fluent-ffmpeg');
 const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -12,20 +14,31 @@ app.use(express.json());
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
+const DURATION = 10;
+
+
 app.post('/process-video', upload.single('video'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).send('No file uploaded');
     }
+    const filePath = path.join(__dirname, 'uploads', 'uploadedVideo.mp4');
+    console.log(filePath);
+    // Write the buffer to a file
+    fs.writeFileSync(filePath, req.file.buffer);
 
-    console.log(req.file);
+    // TODO: generate one randomly
+    const additionalVideoPath = './shortSubway.mp4';
 
-    const inputVideoBuffer = req.file.buffer;
-    const additionalVideoPath = './testingVideo.mp4';
+    console.log("starting splice")
 
-    const outputVideoBuffer = await processVideo(inputVideoBuffer, additionalVideoPath);
+    // array of clipped videos
+    const shortenedVideoArray = await spliceVideo(filePath, additionalVideoPath);
+    console.log("spliced");
 
-    res.send(outputVideoBuffer);
+    //const outputVideoArray = await processVideo(shortenedVideoBuffer, additionalVideoPath);
+
+    res.send(shortenedVideoArray);
     //res.send("Hello");
   } catch (error) {
     console.error('Error processing video:', error);
@@ -33,51 +46,54 @@ app.post('/process-video', upload.single('video'), async (req, res) => {
   }
 });
 
-fluentFFmpeg({ source: 'NBA.mp4' })
-  .setStartTime(10)
-  .duration(10)
-  .on('start', function(commandLine) {
-    console.log("Processing Begun");
-  })
-  .on('error', function(err) {
-    console.error("Error occurred:", err);
-  })  
-  .on('end', function() {
-    console.log("Processing Completed");
-  })
-  .saveToFile("newVid.mp4");
+async function spliceVideo(inputBuffer, additionalVideoPath) {
+  // TODO: base it off of the length of the video instead of just 5
+  let combinedVideos = [];
 
-
-function processVideo(inputBuffer, additionalVideoPath) {
-  return new Promise((resolve, reject) => {
-    console.log(inputBuffer);
+  // splice into 5 sections of length DURATION
+  for (let i = 0; i < 5; i++) {
     fluentFFmpeg()
       .input(inputBuffer)
-      .inputFormat('mp4')
-      .input(additionalVideoPath)
-      .inputFormat('mp4')
-      .complexFilter('[0:v][1:v]vstack=inputs=2[v]')
-      .on('end', () => {
-        console.log('Processing ended');
-        resolve();
+      .setStartTime(i * DURATION)
+      .duration(DURATION)
+      .complexFilter('scale=640:480')
+      .on('start', function (commandLine) {
+        console.log("Processing Begun ");
       })
-      .on('error', (err) => {
-        console.log('Error occurred:', err);
-        reject(err);
+      .on('error', function (err) {
+        console.error("Error occurred:", err);
       })
-      .toFormat('mp4')
-      .on('data', (chunk) => {
-        console.log('Data chunk received');
-        // Save the output buffer chunks
-        resolve(chunk);
+      .on('end', function () {
+        console.log("Processing Completed ");
+        combinedVideos[i] = processVideo("./uploads/shortened/newVid" + i + ".mp4", additionalVideoPath, i);
       })
-      .on('end', () => {
-        console.log('End of data');
-        // Signal the end of the buffer
-        resolve(null);
-      })
-      .run();
-  });
+      .saveToFile("./uploads/shortened/newVid" + i + ".mp4");
+  }
+  return combinedVideos;
+
+}
+
+// videoArray: [], array of video paths
+// additionalVideoPath: string, path of subway surf video to add
+//                      change to array later
+// returns array of combined video paths
+function processVideo(video, additionalVideoPath, index) {
+  fluentFFmpeg()
+    .input(video)
+    .input(additionalVideoPath)
+    .complexFilter('vstack=inputs=2')
+    .on('start', function (commandLine) {
+      console.log("Processing Begun " + "combine");
+    })
+    .on('error', function (err) {
+      console.error("Error occurred:", err);
+    })
+    .on('end', function () {
+      console.log("Processing Completed " + "combine");
+      combinedPath = "./uploads/combined/combined" + index + ".mp4";
+      return combinedPath;
+    })
+    .saveToFile("./uploads/combined/combined" + index + ".mp4");
 }
 
 app.listen(port, () => {
