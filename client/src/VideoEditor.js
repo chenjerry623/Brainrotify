@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDropzone } from 'react-dropzone';
+import left from './images/left.png';
+import right from './images/right.png';
+import upload from './images/upload.png';
 
 const VideoEditor = () => {
   const [inputVideo, setInputVideo] = useState(null);
@@ -126,26 +129,49 @@ const VideoEditor = () => {
   }
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-      <input type="file" accept="video/*" onChange={handleFileSelect} />
-      <button onClick={processVideo}>
-        <img src="./images/upload.png" />
-      </button>
+    <div className='application'>
+      
+      <h1 className='title'>Brainrotify</h1>
 
-      {statusMessage && <div>Status: {statusMessage}</div>}
+      <div className='fileStuff'>
+        <input type="file" accept="video/*" onChange={handleFileSelect} id='file' class='custom-file-upload'/>
+      </div>
+      
+      <div className='uploadDiv'>
+        <button onClick={processVideo} className='uploadButton'>
+          <img className='upload' src={upload} alt='Upload'/>
+        </button>
+      </div>
+      
+
+      {statusMessage && <div className='status'>Status: {statusMessage}</div>}
       {errorMessage && <div style={{ color: 'red' }}>Error: {errorMessage}</div>}
 
-      {uploading && <div>Generating Brainrot...</div>}
+      {uploading && <div className='status'>Generating Brainrot...</div>}
       {(selectedVideo && !(uploading)) && (
 
-        <div>
-          <button onClick={handlePreviousVideo}>Previous Video</button>
-          <video ref={videoRef} controls width="500" src={selectedVideo}>
+
+        <div className='display'>
+          <button onClick={handlePreviousVideo} className='leftButton'>
+            <img className='left' src={left} alt='Next Video'/>
+          </button>
+
+
+          <video controls width="500" src={selectedVideo}>
+
             Your browser does not support the video tag.
           </video>
-          <button onClick={handleNextVideo}>Next Video</button>
+
+          <div className='rightDiv'>
+            <button onClick={handleNextVideo} className='rightButton'>
+              <img className='right' src={right} alt='Next Video'/>
+            </button>
+          </div>
         </div>
+
       )}
+
+
     </div>
   );
 };
