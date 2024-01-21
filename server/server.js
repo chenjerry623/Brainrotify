@@ -48,7 +48,7 @@ app.post('/process-video', upload.single('video'), async (req, res) => {
 
 async function spliceVideo(inputBuffer, additionalVideoPath) {
   // TODO: base it off of the length of the video instead of just 5
-  let shortenedVideos = [];
+  let combinedVideos = [];
 
   // splice into 5 sections of length DURATION
   for (let i = 0; i < 5; i++) {
@@ -65,11 +65,11 @@ async function spliceVideo(inputBuffer, additionalVideoPath) {
       })
       .on('end', function () {
         console.log("Processing Completed ");
-        shortenedVideos[i] = processVideo("./uploads/shortened/newVid" + i + ".mp4", additionalVideoPath, i);
+        combinedVideos[i] = processVideo("./uploads/shortened/newVid" + i + ".mp4", additionalVideoPath, i);
       })
       .saveToFile("./uploads/shortened/newVid" + i + ".mp4");
   }
-  return shortenedVideos;
+  return combinedVideos;
 
 }
 
