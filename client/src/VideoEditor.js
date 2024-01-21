@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useDropzone } from 'react-dropzone';
 import left from './images/left.png';
 import right from './images/right.png';
@@ -13,9 +13,13 @@ const VideoEditor = () => {
   const [statusMessage, setStatusMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
+  const [stateChange, setStateChange] = useState(false);
+
   const [uploading, setUploading] = useState(false);
 
   const STORAGE_URL = 'http://localhost:3001/videos/';
+
+  const videoRef = useRef(null);
 
   useEffect(() => {
     fetch('http://localhost:3001/list-videos')
@@ -58,45 +62,49 @@ const VideoEditor = () => {
     }
   };
 
-  const handleVideoSelection = (event) => {
-    setSelectedVideo(STORAGE_URL + event.target.value);
-    console.log(STORAGE_URL + event.target.value);
-  };
 
   async function processVideo(inputFile, additionalVideoPath) {
     setUploading(true);
-    return new Promise(async (resolve, reject) => {
-      if (!inputVideo) {
-        setErrorMessage('No file selected for upload.');
-        return;
+    if (!inputVideo) {
+      setErrorMessage('No file selected for upload.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('video', inputVideo);
+    setStatusMessage('Uploading video...');
+
+    try {
+      const response = await fetch('http://localhost:3001/process-video', {
+        method: 'POST',
+        body: formData,
+      });
+
+      setStateChange(!stateChange);
+
+      if (!response.ok) {
+        throw new Error(`Server responded with error code: ${response.status}`);
       }
 
-      const formData = new FormData();
-      formData.append('video', inputVideo);
-      setStatusMessage('Uploading video...');
+      // Fetch updated list of videos after upload
+      const videoListResponse = await fetch('http://localhost:3001/list-videos');
+      const updatedVideoUrls = await videoListResponse.json();
 
-      try {
-        const response = await fetch('http://localhost:3001/process-video', {
-          method: 'POST',
-          body: formData,
-        });
+      setVideoUrls(updatedVideoUrls);
+      setStatusMessage('Video uploaded successfully.');
 
-        if (!response.ok) {
-          throw new Error(`Server responded with error code: ${response.status}`);
-        }
+      // Use updatedVideoUrls directly and add cache-busting query parameter
+      const newVideoUrl = STORAGE_URL + updatedVideoUrls[0] + `?timestamp=${Date.now()}`;
+      setSelectedVideo(newVideoUrl);
 
-        // Fetch updated list of videos after upload
-        setStatusMessage('Video uploaded successfully.');
-        setSelectedVideo(STORAGE_URL + videoUrls[0]);
-        setUploading(false);
-        resolve(); // Resolve the promise
-      } catch (error) {
-        console.error('Error uploading video:', error);
-        setErrorMessage(`Upload failed: ${error.message}`);
-        setStatusMessage();
-        reject(error); // Reject the promise
-      }
-    });
+
+      setUploading(false);
+    } catch (error) {
+      console.error('Error uploading video:', error);
+      setErrorMessage(`Upload failed: ${error.message}`);
+      setStatusMessage();
+      setUploading(false);
+    }
   }
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop: handleDrop });
@@ -104,14 +112,19 @@ const VideoEditor = () => {
   function handlePreviousVideo() {
     const index = videoUrls.indexOf(selectedVideo.replace(STORAGE_URL, ''));
     if (index > 0) {
-      setSelectedVideo(STORAGE_URL + videoUrls[index - 1]);
+      const newVideoUrl = STORAGE_URL + videoUrls[index - 1];
+      setSelectedVideo(newVideoUrl);
+      
     }
   }
+
 
   function handleNextVideo() {
     const index = videoUrls.indexOf(selectedVideo.replace(STORAGE_URL, ''));
     if (index < videoUrls.length - 1) {
-      setSelectedVideo(STORAGE_URL + videoUrls[index + 1]);
+      const newVideoUrl = STORAGE_URL + videoUrls[index + 1];
+      setSelectedVideo(newVideoUrl);
+      
     }
   }
 
@@ -137,6 +150,7 @@ const VideoEditor = () => {
       {uploading && <div className='status'>Generating Brainrot...</div>}
       {(selectedVideo && !(uploading)) && (
 
+
         <div className='display'>
           <button onClick={handlePreviousVideo} className='leftButton'>
             <img className='left' src={left} alt='Next Video'/>
@@ -144,6 +158,7 @@ const VideoEditor = () => {
 
 
           <video controls width="500" src={selectedVideo}>
+
             Your browser does not support the video tag.
           </video>
 

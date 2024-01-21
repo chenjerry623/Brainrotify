@@ -65,30 +65,35 @@ app.get('/list-videos', (req, res) => {
 
 
 async function spliceVideo(inputBuffer, additionalVideoPath) {
-  // TODO: base it off of the length of the video instead of just 5
   let combinedVideos = [];
 
-  // splice into 5 sections of length DURATION
-  for (let i = 0; i < 5; i++) {
-    fluentFFmpeg()
-      .input(inputBuffer)
-      .setStartTime(i * DURATION)
-      .duration(DURATION)
-      .complexFilter('scale=640:480')
-      .on('start', function (commandLine) {
-        console.log("Processing Begun ");
-      })
-      .on('error', function (err) {
-        console.error("Error occurred:", err);
-      })
-      .on('end', function () {
-        console.log("Processing Completed ");
-        combinedVideos[i] = processVideo("./uploads/shortened/newVid" + i + ".mp4", additionalVideoPath, i);
-      })
-      .saveToFile("./uploads/shortened/newVid" + i + ".mp4");
-  }
+  const promises = Array.from({ length: 5 }, (_, i) => {
+    return new Promise((resolve, reject) => {
+      fluentFFmpeg()
+        .input(inputBuffer)
+        .setStartTime(i * DURATION)
+        .duration(DURATION)
+        .complexFilter('scale=640:480')
+        .on('start', function (commandLine) {
+          console.log("Processing Begun ");
+        })
+        .on('error', function (err) {
+          console.error("Error occurred:", err);
+          reject(err);
+        })
+        .on('end', async function () {
+          console.log("Processing Completed ");
+          const processedVideo = await processVideo("./uploads/shortened/newVid" + i + ".mp4", additionalVideoPath, i);
+          combinedVideos[i] = processedVideo;
+          resolve();
+        })
+        .saveToFile("./uploads/shortened/newVid" + i + ".mp4");
+    });
+  });
+console.log("1")
+  await Promise.all(promises);
+  console.log("2")
   return combinedVideos;
-
 }
 
 // videoArray: [], array of video paths
@@ -96,22 +101,24 @@ async function spliceVideo(inputBuffer, additionalVideoPath) {
 //                      change to array later
 // returns array of combined video paths
 function processVideo(video, additionalVideoPath, index) {
-  fluentFFmpeg()
-    .input(video)
-    .input(additionalVideoPath)
-    .complexFilter('vstack=inputs=2')
-    .on('start', function (commandLine) {
-      console.log("Processing Begun " + "combine");
-    })
-    .on('error', function (err) {
-      console.error("Error occurred:", err);
-    })
-    .on('end', function () {
-      console.log("Processing Completed " + "combine");
-      combinedPath = "./uploads/combined/combined" + index + ".mp4";
-      return combinedPath;
-    })
-    .saveToFile("./uploads/combined/combined" + index + ".mp4");
+  return new Promise((resolve, reject) => {
+    fluentFFmpeg()
+      .input(video)
+      .input(additionalVideoPath)
+      .complexFilter('vstack=inputs=2')
+      .on('start', function (commandLine) {
+        console.log("Processing Begun " + "combine");
+      })
+      .on('error', function (err) {
+        console.error("Error occurred:", err);
+      })
+      .on('end', function () {
+        console.log("Processing Completed " + "combine");
+        combinedPath = "./uploads/combined/combined" + index + ".mp4";
+        resolve(combinedPath);
+      })
+      .saveToFile("./uploads/combined/combined" + index + ".mp4");
+  });
 }
 
 app.listen(port, () => {
