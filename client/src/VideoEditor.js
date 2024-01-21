@@ -130,6 +130,9 @@ const VideoEditor = () => {
 
   return (
     <div className='application'>
+      <head>
+        <title>My first website</title>
+      </head>
       
       <h1 className='title'>Brainrotify</h1>
 
@@ -147,7 +150,7 @@ const VideoEditor = () => {
       {statusMessage && <div className='status'>Status: {statusMessage}</div>}
       {errorMessage && <div style={{ color: 'red' }}>Error: {errorMessage}</div>}
 
-      {uploading && <div className='status'>Generating Brainrot...</div>}
+      {uploading && <div className='statusRot'>Generating Brainrot...</div>}
       {(selectedVideo && !(uploading)) && (
 
 

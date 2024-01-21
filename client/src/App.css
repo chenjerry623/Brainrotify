@@ -66,6 +66,19 @@
   padding-top: 1rem;
   padding-bottom: 1.5rem;
 }
+.statusRot {
+  color: white;
+  padding-top: 1rem;
+  padding-bottom: 1.5rem;
+  font-size: 2rem;
+  animation: blinker 2s linear infinite;
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
 
 .uploadButton {
   margin-top: 2rem;
