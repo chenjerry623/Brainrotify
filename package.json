@@ -1,6 +1,8 @@
 {
   "dependencies": {
     "ffmpeg": "^0.0.4",
+    "fluent-ffmpeg": "^2.1.2",
     "react-dropzone": "^14.2.3"
-  }
+  },
+  "proxy": "http://localhost:3001"
 }

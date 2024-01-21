@@ -1,20 +1,52 @@
 const express = require('express');
 const multer = require('multer');
-const fluentFFmpeg = require('fluent-ffmpeg');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const fluentFFmpeg = require('fluent-ffmpeg');
 
 const app = express();
 const port = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
+app.use('/videos', express.static('videos'));
 
-const storage = multer.memoryStorage();
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/'); // Temporary folder for uploads
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
+
 const upload = multer({ storage: storage });
 
+function processVideo(inputPath, outputPath) {
+  return new Promise((resolve, reject) => {
+    console.log("Process Video: Starting with input file", inputPath);
+
+    fluentFFmpeg(inputPath)
+      .setStartTime(10)  // Example start time
+      .duration(10)      // Example duration
+      .on('start', function(commandLine) {
+        console.log("ffmpeg process started:", commandLine);
+      })
+      .on('error', function(err) {
+        console.error("ffmpeg process error:", err);
+        reject({ code: 1001, error: err });
+      })
+      .on('end', function() {
+        console.log("ffmpeg process completed");
+        resolve(outputPath);
+      })
+      .saveToFile(outputPath);
+  });
+}
+
 const DURATION = 10;
+
 
 
 app.post('/process-video', upload.single('video'), async (req, res) => {
