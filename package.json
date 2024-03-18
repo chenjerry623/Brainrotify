@@ -3,5 +3,8 @@
     "ffmpeg": "^0.0.4",
     "react-dropzone": "^14.2.3",
     "react-helmet": "^6.1.0"
+  },
+  "devDependencies": {
+    "file-loader": "^6.2.0"
   }
 }
