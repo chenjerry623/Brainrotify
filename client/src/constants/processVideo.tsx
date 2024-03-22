@@ -7,7 +7,6 @@ const processVideo = async (inputVideo: File | null, stateChange : boolean,
     setStatusMessage: (message: string) => void,
     setSelectedVideo: (url: string) => void,
     setVideoUrls: (state: string[]) => void,
-    setCurrIndex: (index: number) => void,
     ) => {
     setUploading(true);
     if (!inputVideo) {
@@ -25,6 +24,7 @@ const processVideo = async (inputVideo: File | null, stateChange : boolean,
             body: formData,
         });
 
+        // TODO: test to see if necessary, probably remove
         setStateChange(!stateChange);
 
         if (!response.ok) {
@@ -42,7 +42,6 @@ const processVideo = async (inputVideo: File | null, stateChange : boolean,
         const newVideoUrl: string = CONSTANTS.STORAGE_URL + updatedVideoUrls[0] + `?timestamp=${Date.now()}`;
 
         // Set and display initial clip
-        setCurrIndex(0);
         setSelectedVideo(newVideoUrl);
 
         setUploading(false);
