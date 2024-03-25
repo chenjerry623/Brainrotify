@@ -1,31 +1,11 @@
 import React, { useState, useEffect, useRef, ChangeEvent } from 'react';
 
-
-
-//import left from './../images/left.png';
-
-import left from './../images/left.png'
-import right from './../images/right.png';
 import upload from './../images/upload.png';
 
-import CONSTANTS from './../constants/globals'
 
 import handleDrop from '../constants/file-selection/handleDrop';
 import handleFileSelect from '../constants/file-selection/handleFileSelect';
-import handlePreviousVideo from '../constants/video-navigation/handlePreviousVideo';
-import handleNextVideo from '../constants/video-navigation/handleNextVideo';
 import processVideo from '../constants/processVideo';
-import VideoPlayer from './VideoPlayer';
-
-interface VideoEditorProps {
-  videoUrls: string[],
-  setVideoUrls: (urls: string[]) => void,
-  selectedVideo: string,
-  setSelectedVideo: (url: string) => void,
-  uploading: boolean,
-  setUploading: (state: boolean) => void
-}
-import VideoPlayer from './VideoPlayer';
 
 interface VideoEditorProps {
   videoUrls: string[],
@@ -36,7 +16,6 @@ interface VideoEditorProps {
   setUploading: (state: boolean) => void
 }
 
-const VideoEditor = (props: VideoEditorProps) => {
 const VideoEditor = (props: VideoEditorProps) => {
   const [inputVideo, setInputVideo] = useState<File | null>(null);
 
