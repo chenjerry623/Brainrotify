@@ -25,7 +25,18 @@ interface VideoEditorProps {
   uploading: boolean,
   setUploading: (state: boolean) => void
 }
+import VideoPlayer from './VideoPlayer';
 
+interface VideoEditorProps {
+  videoUrls: string[],
+  setVideoUrls: (urls: string[]) => void,
+  selectedVideo: string,
+  setSelectedVideo: (url: string) => void,
+  uploading: boolean,
+  setUploading: (state: boolean) => void
+}
+
+const VideoEditor = (props: VideoEditorProps) => {
 const VideoEditor = (props: VideoEditorProps) => {
   const [inputVideo, setInputVideo] = useState<File | null>(null);
 
@@ -34,6 +45,7 @@ const VideoEditor = (props: VideoEditorProps) => {
 
 
   // CALLBACKS TO HELPER FUNCTIONS:
+
 
   const handleDropCallback = (files: File[]) => {
     handleDrop(files, setInputVideo);
@@ -55,6 +67,7 @@ const VideoEditor = (props: VideoEditorProps) => {
       .then(response => response.json()) // return the promise from response.json()
       .then(data => {
         console.log(data);
+        props.setVideoUrls(data);
         props.setVideoUrls(data);
       })
       .catch(error => console.error('Error fetching video URLs:', error));
@@ -78,6 +91,8 @@ const VideoEditor = (props: VideoEditorProps) => {
       {statusMessage && <div className='status'>Status: {statusMessage}</div>}
       {errorMessage && <div style={{ color: 'red' }}>Error: {errorMessage}</div>}
 
+      {/*TODO: make this a loading bar */}
+      {props.uploading && <div className='statusRot'>Generating Brainrot...</div>}
       {/*TODO: make this a loading bar */}
       {props.uploading && <div className='statusRot'>Generating Brainrot...</div>}
 
