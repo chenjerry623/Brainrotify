@@ -1,13 +1,11 @@
 import CONSTANTS from "./globals";
 
-const processVideo = async (inputVideo: File | null, stateChange : boolean,
+const processVideo = async (inputVideo: File | null, 
     setUploading: (state: boolean) => void,
-    setStateChange: (state: boolean) => void,
     setErrorMessage: (message: string) => void,
     setStatusMessage: (message: string) => void,
     setSelectedVideo: (url: string) => void,
     setVideoUrls: (state: string[]) => void,
-    setCurrIndex: (index: number) => void,
     ) => {
     setUploading(true);
     if (!inputVideo) {
@@ -25,7 +23,6 @@ const processVideo = async (inputVideo: File | null, stateChange : boolean,
             body: formData,
         });
 
-        setStateChange(!stateChange);
 
         if (!response.ok) {
             throw new Error(`Server responded with error code: ${response.status}`);
@@ -42,7 +39,6 @@ const processVideo = async (inputVideo: File | null, stateChange : boolean,
         const newVideoUrl: string = CONSTANTS.STORAGE_URL + updatedVideoUrls[0] + `?timestamp=${Date.now()}`;
 
         // Set and display initial clip
-        setCurrIndex(0);
         setSelectedVideo(newVideoUrl);
 
         setUploading(false);
