@@ -32,7 +32,7 @@ const VideoPlayer = (props: VideoPlayerProps) => {
                 </button>
 
 
-                <video controls width="500" src={props.selectedVideo}>
+                <video controls width="500" src={props.selectedVideo} loop autoPlay>
                     Your browser does not support the video tag.
                 </video>
 

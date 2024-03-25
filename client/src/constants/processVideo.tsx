@@ -1,8 +1,7 @@
 import CONSTANTS from "./globals";
 
-const processVideo = async (inputVideo: File | null, stateChange : boolean,
+const processVideo = async (inputVideo: File | null, 
     setUploading: (state: boolean) => void,
-    setStateChange: (state: boolean) => void,
     setErrorMessage: (message: string) => void,
     setStatusMessage: (message: string) => void,
     setSelectedVideo: (url: string) => void,
@@ -24,8 +23,6 @@ const processVideo = async (inputVideo: File | null, stateChange : boolean,
             body: formData,
         });
 
-        // TODO: test to see if necessary, probably remove
-        setStateChange(!stateChange);
 
         if (!response.ok) {
             throw new Error(`Server responded with error code: ${response.status}`);
