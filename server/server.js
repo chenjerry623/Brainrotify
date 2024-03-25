@@ -1,3 +1,4 @@
+
 const express = require('express');
 const multer = require('multer');
 const fluentFFmpeg = require('fluent-ffmpeg');
@@ -16,9 +17,8 @@ const upload = multer({ storage: storage });
 
 const DURATION = 10;
 
-
-
 app.use('/videos', express.static(path.join(__dirname, 'uploads', 'combined')));
+
 
 
 app.post('/process-video', upload.single('video'), async (req, res) => {
@@ -35,7 +35,7 @@ app.post('/process-video', upload.single('video'), async (req, res) => {
 
     //const subwayIndex = Math.floor(Math.random() * 10 + 1);
     //const additionalVideoPath = './shortSubway' + subwayIndex + '.mp4';
-    const additionalVideoPath = './shortSubway';
+    const additionalVideoPath = './gameplay/shortSubway';
 
     console.log("starting splice")
 
