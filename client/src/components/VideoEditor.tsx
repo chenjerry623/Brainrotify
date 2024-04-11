@@ -72,8 +72,6 @@ const VideoEditor = (props: VideoEditorProps) => {
 
       {/*TODO: make this a loading bar */}
       {props.uploading && <div className='statusRot'>Generating Brainrot...</div>}
-      {/*TODO: make this a loading bar */}
-      {props.uploading && <div className='statusRot'>Generating Brainrot...</div>}
 
 
     </div>
